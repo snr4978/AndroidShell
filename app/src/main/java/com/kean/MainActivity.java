@@ -12,20 +12,19 @@ import android.os.Bundle;
 import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
 
 import com.kean.util.ColorUtil;
 import com.kean.util.JavascriptUtil;
 
 public class MainActivity extends AppCompatActivity {
 
+    LinearLayout linearLayout;
     WebView webView;
 
     @Override
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     protected void onCreate(Bundle savedInstanceState) {
-        long timestamp = System.currentTimeMillis();
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -33,25 +32,13 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction("com.kean.ACTION_CALL_JAVASCRIPT");
         registerReceiver(new JavascriptReceiver(), intentFilter);
 
+        linearLayout = findViewById(R.id.loading);
         webView = findViewById(R.id.content);
+
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                long duration = System.currentTimeMillis() - timestamp;
-                if (duration < 2000) {
-                    try {
-                        Thread.sleep(2000 - duration);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                findViewById(R.id.loading).setVisibility(View.GONE);
-            }
-        });
         webView.addJavascriptInterface(new JavascriptUtil(this), "AndroidShell");
-        webView.loadUrl("http://120.53.10.174/");
+        webView.loadUrl("http://47.92.246.182:8888/");
     }
 
     @Override
@@ -72,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
             if (intent != null) {
                 String data = intent.getStringExtra("data");
                 new ColorUtil(MainActivity.this).setColor(Color.parseColor(data));
+                linearLayout.setVisibility(View.GONE);
             }
         }
     }
